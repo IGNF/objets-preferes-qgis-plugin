@@ -26,7 +26,7 @@ jobs:
             --exclude .git \
             --exclude .github \
             --exclude IGN_objets_preferes
-          zip -r "IGN_objets_preferes.zip" . -x ".git/*" ".github/*"
+          zip -r IGN_objets_preferes.zip IGN_objets_preferes
 
       - name: Create Release
         uses: softprops/action-gh-release@v1
