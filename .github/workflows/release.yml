@@ -26,6 +26,6 @@ jobs:
       - name: Create Release
         uses: softprops/action-gh-release@v1
         with:
-          files: "TEST/IGN_objets_preferes.zip"
+          files: "IGN_objets_preferes.zip"
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
