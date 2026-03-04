@@ -21,11 +21,11 @@ jobs:
 
       - name: Build plugin zip
         run: |
-	  mkdir -p IGN_objets_preferes
-    	  rsync -av --progress . IGN_objets_preferes/ \
-      		--exclude .git \
-      		--exclude .github \
-      		--exclude IGN_objets_preferes
+          mkdir -p IGN_objets_preferes
+          rsync -av --progress . IGN_objets_preferes/ \
+            --exclude .git \
+            --exclude .github \
+            --exclude IGN_objets_preferes
           zip -r "IGN_objets_preferes.zip" . -x ".git/*" ".github/*"
 
       - name: Create Release
