@@ -24,7 +24,7 @@
 import os
 
 from PyQt5.QtCore import Qt
-from PyQt5.QtWidgets import QDialog
+from PyQt5.QtWidgets import QDialog, QInputDialog, QMenu
 from qgis.PyQt.QtCore import QSettings, QTranslator, QCoreApplication
 from qgis.PyQt.QtGui import QIcon
 from qgis.PyQt.QtWidgets import QAction
@@ -34,7 +34,7 @@ from qgis._core import QgsProject
 from .objet_prefere_dialog import ObjetsPrefDialog
 
 REP_CONFIG = "CONFIG"
-FIC_OBJET_PREFERES = "objets_preferes.txt"
+FIC_OBJET_PREFERES = "objets_preferes.json"
 
 class ObjetsPref:
     """QGIS Plugin Implementation."""
@@ -48,6 +48,7 @@ class ObjetsPref:
         :type iface: QgsInterface
         """
         # Save reference to the QGIS interface
+        self.layer = None
         self.dlg = None
         self.iface = iface
         self._fic_objets_pref = None
@@ -64,11 +65,7 @@ class ObjetsPref:
             Retourne le chemin du dossier des objets préférés.
             :return: str
             """
-        project = QgsProject.instance()
-        chemin_projet = project.fileName()
-        dossier_projet = os.path.dirname(chemin_projet)
-        dossier = os.path.join(dossier_projet, REP_CONFIG)
-        return dossier
+        return os.path.join(os.path.dirname(__file__),"OBJ_PREF")
 
     def set_fic_objetpreferes(self):
         self._fic_objets_pref = os.path.join(self.get_dossier_objets_pref(), FIC_OBJET_PREFERES)
@@ -77,14 +74,84 @@ class ObjetsPref:
         return self._fic_objets_pref
 
     def get_objetspreferes(self):
-        if self.get_fic_objetpreferes is None:
+        if self.get_fic_objetpreferes() is None:
             self.set_fic_objetpreferes()
         if os.path.exists(self.get_fic_objetpreferes()):
             with open(self.get_fic_objetpreferes(), "r") as f:
                 return [line.strip() for line in f.readlines()]
         else:
-            print(f"Le fichier {self.get_fic_objetpreferes()} n'existe pas.")
             return []
+
+    def on_ajouter_objet_prefere(self):
+        project = QgsProject.instance()
+        layers = project.mapLayers().values()
+        list_layer = [layer.name() for layer in layers]
+        valeur, ok = QInputDialog.getItem(
+            None,
+            "Sélection",
+            "Choisir ... :",
+            list_layer,
+            0,
+            False
+        )
+        if ok:
+            self.dlg.listWidget.addItem(valeur)
+            self.add_obj_pef_to_fic(valeur)
+
+
+    def add_obj_pef_to_fic(self, objet_prefere):
+        os.makedirs(self.get_dossier_objets_pref(), exist_ok=True)
+        with open(self.get_fic_objetpreferes(), "a") as f:
+            f.write(objet_prefere + "\n")
+
+    def get_obj_pref_from_fic(self):
+        if os.path.exists(self.get_fic_objetpreferes()):
+            with open(self.get_fic_objetpreferes(), "r") as f:
+                return [line.strip() for line in f.readlines()]
+        else:
+            return []
+
+    def init_list_widget(self):
+        objets_pref = self.get_obj_pref_from_fic()
+        self.dlg.listWidget.clear()
+        for obj in objets_pref:
+            self.dlg.listWidget.addItem(obj)
+
+    def context_menu(self,point):
+        item = self.dlg.listWidget.itemAt(point)
+        # Si clic en dehors d’une ligne → ne rien afficher
+        if item is None:
+            return
+        menu = QMenu()
+        action_supprimer = menu.addAction("Supprimer")
+        action = menu.exec_(self.dlg.listWidget.mapToGlobal(point))
+
+        if item:
+            if action == action_supprimer:
+                self.dlg.listWidget.takeItem(self.dlg.listWidget.row(item))
+                # et on réécrit le fichier sans l'item supprimé
+                objets_pref = self.get_obj_pref_from_fic()
+                objets_pref = [obj for obj in objets_pref if obj != item.text()]
+                with open(self.get_fic_objetpreferes(), "w") as f:
+                    for obj in objets_pref:
+                        f.write(obj + "\n")
+
+    def on_clic_objet_prefere(self):
+
+        item = self.dlg.listWidget.currentItem()
+        if item:
+            project = QgsProject.instance()
+            self.layer = project.mapLayersByName(item.text())
+
+            if self.layer:
+                self.layer[0].featureAdded.connect(self.on_entite_cree)
+                self.iface.setActiveLayer(self.layer[0])
+                self.layer[0].startEditing()
+                self.iface.actionAddFeature().trigger()
+
+    def on_entite_cree(self):
+        # apres une creation, on repasse en mode selection
+        self.iface.actionSelect().trigger()
 
     def run(self):
         """Run method that performs all the real work"""
@@ -94,10 +161,19 @@ class ObjetsPref:
         self.dlg.setParent(self.iface.mainWindow())
         self.dlg.setWindowFlags(Qt.Dialog | Qt.WindowTitleHint | Qt.WindowCloseButtonHint)
 
+        # slot pour le bouton "Ajouter un objet préféré"
+        self.dlg.pushButtonAdd.clicked.connect(self.on_ajouter_objet_prefere)
+
+        # self.layer.featureAdded.connect(self.on_entite_cree)
+
+        # slot de listwidget
+        self.dlg.listWidget.itemClicked.connect(self.on_clic_objet_prefere)
+        # Connecter le menu contextuel
+        self.dlg.listWidget.setContextMenuPolicy(3)  # Qt.CustomContextMenu
+        self.dlg.listWidget.customContextMenuRequested.connect(self.context_menu)
+
         self.set_fic_objetpreferes()
-
-        print(self.get_fic_objetpreferes())
-
+        self.init_list_widget()
 
         self.dlg.show()
         # Run the dialog event loop
