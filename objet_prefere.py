@@ -23,12 +23,9 @@
 """
 import os
 
-from PyQt5.QtCore import Qt
-from PyQt5.QtWidgets import QDialog, QInputDialog, QMenu
-from qgis.PyQt.QtCore import QSettings, QTranslator, QCoreApplication
-from qgis.PyQt.QtGui import QIcon
-from qgis.PyQt.QtWidgets import QAction
-from qgis._core import QgsProject
+from qgis.PyQt.QtCore import Qt
+from qgis.PyQt.QtWidgets import QDialog, QInputDialog, QMenu
+from qgis.core import QgsProject
 
 # Import the code for the dialog
 from .objet_prefere_dialog import ObjetsPrefDialog
@@ -137,7 +134,6 @@ class ObjetsPref:
                         f.write(obj + "\n")
 
     def on_clic_objet_prefere(self):
-
         item = self.dlg.listWidget.currentItem()
         if item:
             project = QgsProject.instance()
@@ -163,8 +159,6 @@ class ObjetsPref:
 
         # slot pour le bouton "Ajouter un objet préféré"
         self.dlg.pushButtonAdd.clicked.connect(self.on_ajouter_objet_prefere)
-
-        # self.layer.featureAdded.connect(self.on_entite_cree)
 
         # slot de listwidget
         self.dlg.listWidget.itemClicked.connect(self.on_clic_objet_prefere)
