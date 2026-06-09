@@ -22,13 +22,15 @@
  ***************************************************************************/
 """
 import os
+import webbrowser
 
-from qgis.PyQt.QtCore import Qt
-from qgis.PyQt.QtWidgets import QDialog, QInputDialog, QMenu
+from qgis.PyQt.uic import loadUi
+from qgis.PyQt.QtWidgets import QInputDialog, QMenu
 from qgis.core import QgsProject
 
 # Import the code for the dialog
 from .objet_prefere_dialog import ObjetsPrefDialog
+from .mapping_version import *
 
 REP_CONFIG = "CONFIG"
 FIC_OBJET_PREFERES = "objets_preferes.json"
@@ -79,6 +81,17 @@ class ObjetsPref:
         else:
             return []
 
+    def on_apropos(self):
+        self.dlgAProposDe = QDialog()
+        loadUi(os.path.join(os.path.dirname(__file__), "aproposde.ui"), self.dlgAProposDe)
+        self.dlgAProposDe.setWindowFlags(WindowStaysOnTopHint | WindowCloseButtonHint)
+        self.dlgAProposDe.pushButtonAffichedoc.clicked.connect(self.afficheDoc)
+        self.dlgAProposDe.exec()
+
+    def afficheDoc(self):
+        webbrowser.open("url")
+
+
     def on_ajouter_objet_prefere(self):
         project = QgsProject.instance()
         layers = project.mapLayers().values()
@@ -121,7 +134,7 @@ class ObjetsPref:
             return
         menu = QMenu()
         action_supprimer = menu.addAction("Supprimer")
-        action = menu.exec_(self.dlg.listWidget.mapToGlobal(point))
+        action = menu.exec(self.dlg.listWidget.mapToGlobal(point))
 
         if item:
             if action == action_supprimer:
@@ -138,12 +151,14 @@ class ObjetsPref:
         if item:
             project = QgsProject.instance()
             self.layer = project.mapLayersByName(item.text())
-
             if self.layer:
-                self.layer[0].featureAdded.connect(self.on_entite_cree)
                 self.iface.setActiveLayer(self.layer[0])
-                self.layer[0].startEditing()
-                self.iface.actionAddFeature().trigger()
+
+    def on_activer_saisie(self):
+        if self.layer:
+            self.layer[0].featureAdded.connect(self.on_entite_cree)
+            self.layer[0].startEditing()
+            self.iface.actionAddFeature().trigger()
 
     def on_entite_cree(self):
         # apres une creation, on repasse en mode selection
@@ -155,10 +170,18 @@ class ObjetsPref:
             return
         self.dlg = ObjetsPrefDialog()
         self.dlg.setParent(self.iface.mainWindow())
-        self.dlg.setWindowFlags(Qt.Dialog | Qt.WindowTitleHint | Qt.WindowCloseButtonHint)
+        self.dlg.setWindowFlags(Dialog | WindowTitleHint | WindowCloseButtonHint)
 
         # slot pour le bouton "Ajouter un objet préféré"
         self.dlg.pushButtonAdd.clicked.connect(self.on_ajouter_objet_prefere)
+
+        # slot pour le bouton "Activer la saisie"
+        self.dlg.pushButton_activer_saisie.clicked.connect(self.on_activer_saisie)
+        self.dlg.pushButton_activer_saisie.setToolTip("Activer la saisie pour l'objet préféré sélectionné")
+
+        # slot pour le bouton "aide"
+        self.dlg.pushButton_aide.clicked.connect(self.on_apropos)
+        self.dlg.pushButton_aide.setToolTip("A propos de ce plugin")
 
         # slot de listwidget
         self.dlg.listWidget.itemClicked.connect(self.on_clic_objet_prefere)
