@@ -26,7 +26,7 @@ import webbrowser
 
 from qgis.PyQt.uic import loadUi
 from qgis.PyQt.QtWidgets import QInputDialog, QMenu
-from qgis.core import QgsProject
+from qgis.core import QgsProject,QgsMapLayer
 
 # Import the code for the dialog
 from .objet_prefere_dialog import ObjetsPrefDialog
@@ -95,7 +95,8 @@ class ObjetsPref:
     def on_ajouter_objet_prefere(self):
         project = QgsProject.instance()
         layers = project.mapLayers().values()
-        list_layer = [layer.name() for layer in layers]
+        # uniquement des layers vectorielles
+        list_layer = [layer.name() for layer in layers if layer.type() == QgsMapLayer.VectorLayer]
         valeur, ok = QInputDialog.getItem(
             None,
             "Sélection",
