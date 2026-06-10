@@ -11,7 +11,7 @@ alt="logo_IGN_pour_lettre" /></td>
 <td style="text-align: center;font-size: 24px;"><strong>Plugin Objets preferés v0.2.0</strong></td>
 </tr>
 <tr>
-<td style="text-align: center;"></td>
+<td style="font-size: 16px;text-align: center;">Développeur  : Gérôme PECHEUR (IGN)</td>
 </tr>
 </tbody>
 </table>
