@@ -1,9 +1,37 @@
 # Objets préférés
 
-Ce plugin permet de sélectionner le type de l'entité à créer.
+Ce plugin permet de gérer des layers "favoris".
+Il Permet d'activer une couche et d'activer la saisie d'une entité sur cette couche active.
+
+## Pré-requis
+
+Mandatory : The "plugin\_maitre" must be installed.
+Link to the plugin maître : [maitre-qgis-plugin sur GitHub](https://github.com/IGNF/maitre-qgis-plugin)
+
+## Fonctionnalités
+
+French : 
+* Gestion des couches "favorites"
+* Activation d'une couche par simple clic
+* Activation de la saisie d'une entité sur la couche active
 
 
+English :
+* Management of Favorite Layers
+* Layer Activation with a Single Click
+* Entity Input Activation on the Active Layer
 
-Prérequis : Le "plugin\_maitre" doit obligatoirement être installé.
-Lien vers le plugin maître : [maitre-qgis-plugin sur GitHub](https://github.com/IGNF/maitre-qgis-plugin)
+## Contacts
 
+- Mainteneur principal : gerome.pecheur@ign.fr
+- Organisation : [IGNF](https://github.com/IGNF)
+- Issues GitHub : https://github.com/IGNF/objets-preferes-qgis-plugin/issues
+
+## Ressources
+
+User documentation : https://ignf.github.io/objets-preferes-qgis-plugin/
+
+
+## Licence
+
+GNU AGPL v3
