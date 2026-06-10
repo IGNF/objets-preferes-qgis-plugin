@@ -89,7 +89,7 @@ class ObjetsPref:
         self.dlgAProposDe.exec()
 
     def afficheDoc(self):
-        webbrowser.open("url")
+        webbrowser.open("https://ignf.github.io/objets-preferes-qgis-plugin/")
 
 
     def on_ajouter_objet_prefere(self):
