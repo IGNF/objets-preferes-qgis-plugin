@@ -14,7 +14,7 @@ email=gerome.pecheur@ign.fr
 license=GNU AGPL v3
 
 
-about=Ce plugin permet de sélectionner le type de l'entité à créer.
+about=Ce plugin permet d'activer un layer facilement et de passer en mode edition.
 
 homepage=https://ignf.github.io/objets-preferes-qgis-plugin/
 tracker=https://github.com/IGNF/objets-preferes-qgis-plugin/issues
