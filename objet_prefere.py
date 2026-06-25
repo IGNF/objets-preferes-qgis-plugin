@@ -24,9 +24,11 @@
 import os
 import webbrowser
 
+from qgis.PyQt.QtCore import QSettings,QSize,QPoint
+from PyQt5.QtWidgets import QApplication
 from qgis.PyQt.uic import loadUi
 from qgis.PyQt.QtWidgets import QInputDialog, QMenu
-from qgis.core import QgsProject,QgsMapLayer
+from qgis.core import QgsProject,QgsMapLayer,QgsApplication
 
 # Import the code for the dialog
 from .objet_prefere_dialog import ObjetsPrefDialog
@@ -34,6 +36,7 @@ from .mapping_version import *
 
 REP_CONFIG = "CONFIG"
 FIC_OBJET_PREFERES = "objets_preferes.json"
+TITRE = "Objets préférés"
 
 class ObjetsPref:
     """QGIS Plugin Implementation."""
@@ -54,7 +57,9 @@ class ObjetsPref:
 
 
     def initGui(self):
-        pass
+        self.iface.projectRead.connect(self.on_project_opened)
+        # événement fermeture de qgis
+        QgsApplication.instance().aboutToQuit.connect(self.fermeture_qgis)
 
     def unload(self):
         pass
@@ -165,6 +170,50 @@ class ObjetsPref:
         # apres une creation, on repasse en mode selection
         self.iface.actionSelect().trigger()
 
+    def sauve_position_dial(self):
+        settings = QSettings(QSettings.NativeFormat, QSettings.UserScope,"IGN", TITRE)
+        settings.setValue("position", self.dlg.pos())
+        settings.setValue("taille", self.dlg.size())
+        settings.setValue("visible", self.dlg.isVisible())
+
+
+    def restore_position_dial(self):
+        settings = QSettings(QSettings.NativeFormat, QSettings.UserScope, "IGN", TITRE)
+        pos = settings.value("position", type=QPoint)
+        size = settings.value("taille", type=QSize)
+        if pos is None:
+            return
+        screens = QApplication.screens()
+        multi = len(screens) > 1
+        # Vérifie si la position est sur un des écrans
+        on_screen = any(screen.geometry().contains(pos) for screen in screens)
+        if on_screen:
+            self.dlg.move(pos)
+            if size:
+                self.dlg.resize(size)
+        else:
+            # Si un seul écran → replacer en haut-gauche
+            if not multi:
+                self.dlg.move(QPoint(0, 0))
+            else:
+                # Multi-écran mais position invalide → centrer sur écran principal
+                primary = QApplication.primaryScreen().geometry()
+                center = primary.center()
+                self.dlg.move(center - self.dlg.rect().center())
+
+    def on_project_opened(self):
+        settings = QSettings(QSettings.NativeFormat, QSettings.UserScope, "IGN", TITRE)
+        visible = settings.value("visible", False, type=bool)
+        if visible:
+            self.run()
+
+    def on_dialog_closed(self):
+        self.sauve_position_dial()
+        self.dlg = None
+
+    def fermeture_qgis(self):
+        self.sauve_position_dial()
+
     def run(self):
         """Run method that performs all the real work"""
         if self.dlg is not None and self.dlg.isVisible():
@@ -172,6 +221,14 @@ class ObjetsPref:
         self.dlg = ObjetsPrefDialog()
         self.dlg.setParent(self.iface.mainWindow())
         self.dlg.setWindowFlags(Dialog | WindowTitleHint | WindowCloseButtonHint)
+        self.dlg.setWindowTitle(TITRE)
+
+
+        # connection de la fermeture du dialogue
+        self.dlg.finished.connect(self.on_dialog_closed)
+
+        self.restore_position_dial()
+
 
         # slot pour le bouton "Ajouter un objet préféré"
         self.dlg.pushButtonAdd.clicked.connect(self.on_ajouter_objet_prefere)
@@ -194,9 +251,5 @@ class ObjetsPref:
         self.init_list_widget()
 
         self.dlg.show()
-        # Run the dialog event loop
-        result = self.dlg.exec_()
-        # # See if OK was pressed
-        if result == QDialog.Rejected:
-            pass
+
 
