@@ -6,13 +6,13 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>196</width>
+    <width>242</width>
     <height>283</height>
    </rect>
   </property>
   <property name="minimumSize">
    <size>
-    <width>195</width>
+    <width>242</width>
     <height>180</height>
    </size>
   </property>
@@ -26,6 +26,19 @@
   <layout class="QGridLayout" name="gridLayout_2">
    <item row="0" column="0">
     <layout class="QGridLayout" name="gridLayout">
+     <item row="2" column="2">
+      <widget class="QPushButton" name="pushButtonAdd">
+       <property name="maximumSize">
+        <size>
+         <width>16777215</width>
+         <height>30</height>
+        </size>
+       </property>
+       <property name="text">
+        <string>Ajouter</string>
+       </property>
+      </widget>
+     </item>
      <item row="2" column="1">
       <widget class="QPushButton" name="pushButton_activer_saisie">
        <property name="maximumSize">
@@ -49,19 +62,6 @@
        </property>
       </widget>
      </item>
-     <item row="2" column="2">
-      <widget class="QPushButton" name="pushButtonAdd">
-       <property name="maximumSize">
-        <size>
-         <width>16777215</width>
-         <height>30</height>
-        </size>
-       </property>
-       <property name="text">
-        <string>ajout...</string>
-       </property>
-      </widget>
-     </item>
      <item row="2" column="0">
       <widget class="QPushButton" name="pushButton_aide">
        <property name="maximumSize">
@@ -75,7 +75,20 @@
        </property>
       </widget>
      </item>
-     <item row="1" column="0" colspan="3">
+     <item row="2" column="3">
+      <widget class="QPushButton" name="pushButtonSuppr">
+       <property name="maximumSize">
+        <size>
+         <width>16777215</width>
+         <height>30</height>
+        </size>
+       </property>
+       <property name="text">
+        <string>Supprimer</string>
+       </property>
+      </widget>
+     </item>
+     <item row="1" column="0" colspan="4">
       <widget class="QListWidget" name="listWidget"/>
      </item>
     </layout>

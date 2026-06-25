@@ -25,9 +25,8 @@ import os
 import webbrowser
 
 from qgis.PyQt.QtCore import QSettings,QSize,QPoint
-from PyQt5.QtWidgets import QApplication
 from qgis.PyQt.uic import loadUi
-from qgis.PyQt.QtWidgets import QInputDialog, QMenu
+from qgis.PyQt.QtWidgets import QInputDialog, QMenu,QApplication, QListWidgetItem
 from qgis.core import QgsProject,QgsMapLayer,QgsApplication
 
 # Import the code for the dialog
@@ -152,6 +151,19 @@ class ObjetsPref:
                     for obj in objets_pref:
                         f.write(obj + "\n")
 
+    def on_suppr_objet_prefere(self):
+        item = self.dlg.listWidget.currentItem()
+        if item is None:
+            return
+        # suppression de l'item dans la listwidget
+        self.dlg.listWidget.takeItem(self.dlg.listWidget.row(item))
+        # et on réécrit le fichier sans l'item supprimé
+        objets_pref = self.get_obj_pref_from_fic()
+        objets_pref = [obj for obj in objets_pref if obj != item.text()]
+        with open(self.get_fic_objetpreferes(), "w") as f:
+            for obj in objets_pref:
+                f.write(obj + "\n")
+
     def on_clic_objet_prefere(self):
         item = self.dlg.listWidget.currentItem()
         if item:
@@ -232,6 +244,9 @@ class ObjetsPref:
 
         # slot pour le bouton "Ajouter un objet préféré"
         self.dlg.pushButtonAdd.clicked.connect(self.on_ajouter_objet_prefere)
+
+        # slot pour le bouton "Supprimer un objet préféré"
+        self.dlg.pushButtonSuppr.clicked.connect(self.on_suppr_objet_prefere)
 
         # slot pour le bouton "Activer la saisie"
         self.dlg.pushButton_activer_saisie.clicked.connect(self.on_activer_saisie)
