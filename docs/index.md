@@ -70,6 +70,8 @@ Un clic sur une ligne active automatique le layer correspondant.
 
 Un clic droit sur une ligne permet de supprimer cette ligne.
 
+On peut réorganiser les couches par un glissé-déposé
+
 Une fois qu’un layer est actif, un clic sur
 <img src="images/image4.png"
 style="width:0.3438in;height:0.31254in" /> active la saisie d’une

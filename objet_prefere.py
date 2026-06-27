@@ -23,10 +23,11 @@
 """
 import os
 import webbrowser
+import json
 
-from qgis.PyQt.QtCore import QSettings,QSize,QPoint
+from qgis.PyQt.QtCore import QSettings,QSize,QPoint,QObject
 from qgis.PyQt.uic import loadUi
-from qgis.PyQt.QtWidgets import QInputDialog, QMenu,QApplication, QListWidgetItem
+from qgis.PyQt.QtWidgets import QInputDialog, QMenu,QApplication, QAbstractItemView
 from qgis.core import QgsProject,QgsMapLayer,QgsApplication
 
 # Import the code for the dialog
@@ -37,7 +38,7 @@ REP_CONFIG = "CONFIG"
 FIC_OBJET_PREFERES = "objets_preferes.json"
 TITRE = "Objets préférés"
 
-class ObjetsPref:
+class ObjetsPref():
     """QGIS Plugin Implementation."""
 
     def __init__(self, iface):
@@ -76,14 +77,6 @@ class ObjetsPref:
     def get_fic_objetpreferes(self):
         return self._fic_objets_pref
 
-    def get_objetspreferes(self):
-        if self.get_fic_objetpreferes() is None:
-            self.set_fic_objetpreferes()
-        if os.path.exists(self.get_fic_objetpreferes()):
-            with open(self.get_fic_objetpreferes(), "r") as f:
-                return [line.strip() for line in f.readlines()]
-        else:
-            return []
 
     def on_apropos(self):
         self.dlgAProposDe = QDialog()
@@ -111,18 +104,40 @@ class ObjetsPref:
         )
         if ok:
             self.dlg.listWidget.addItem(valeur)
-            self.add_obj_pef_to_fic(valeur)
+            self.add_obj_pref_to_fic(valeur)
 
 
-    def add_obj_pef_to_fic(self, objet_prefere):
+    def sauve_to_json(self):
+        objets_pref = []
+        for i in range(self.dlg.listWidget.count()):
+            objets_pref.append(self.dlg.listWidget.item(i).text())
+        with open(self.get_fic_objetpreferes(), "w",encoding="utf-8") as f:
+            json.dump(objets_pref, f, indent=2)
+
+
+    def add_obj_pref_to_fic(self, objet_prefere):
         os.makedirs(self.get_dossier_objets_pref(), exist_ok=True)
-        with open(self.get_fic_objetpreferes(), "a") as f:
-            f.write(objet_prefere + "\n")
+        # 1. charger existant
+        try:
+            with open(self.get_fic_objetpreferes(), "r", encoding="utf-8") as f:
+                objets = json.load(f)
+        except Exception:
+            objets = []
+        # ajouter si pas déjà présent
+        if objet_prefere not in objets:
+            objets.append(objet_prefere)
+        # réécrire fichier complet
+        with open(self.get_fic_objetpreferes(), "w", encoding="utf-8") as f:
+            json.dump(objets, f, indent=2, ensure_ascii=False)
 
+    # retourne une liste de tous les objets préférés
     def get_obj_pref_from_fic(self):
         if os.path.exists(self.get_fic_objetpreferes()):
-            with open(self.get_fic_objetpreferes(), "r") as f:
-                return [line.strip() for line in f.readlines()]
+            try:
+                with open(self.get_fic_objetpreferes(), "r", encoding="utf-8") as f:
+                    return json.load(f)
+            except json.JSONDecodeError:
+                return []
         else:
             return []
 
@@ -144,12 +159,12 @@ class ObjetsPref:
         if item:
             if action == action_supprimer:
                 self.dlg.listWidget.takeItem(self.dlg.listWidget.row(item))
-                # et on réécrit le fichier sans l'item supprimé
                 objets_pref = self.get_obj_pref_from_fic()
+                #  on redefini objets_pref sans l'item supprimé
                 objets_pref = [obj for obj in objets_pref if obj != item.text()]
-                with open(self.get_fic_objetpreferes(), "w") as f:
-                    for obj in objets_pref:
-                        f.write(obj + "\n")
+                with open(self.get_fic_objetpreferes(), "w",encoding="utf-8") as f:
+                        # f.write(obj + "\n")
+                        json.dump(objets_pref, f, indent=2)
 
     def on_suppr_objet_prefere(self):
         item = self.dlg.listWidget.currentItem()
@@ -160,9 +175,9 @@ class ObjetsPref:
         # et on réécrit le fichier sans l'item supprimé
         objets_pref = self.get_obj_pref_from_fic()
         objets_pref = [obj for obj in objets_pref if obj != item.text()]
-        with open(self.get_fic_objetpreferes(), "w") as f:
-            for obj in objets_pref:
-                f.write(obj + "\n")
+        with open(self.get_fic_objetpreferes(), "w",encoding="utf-8") as f:
+                # f.write(obj + "\n")
+                json.dump(objets_pref, f, indent=2)
 
     def on_clic_objet_prefere(self):
         item = self.dlg.listWidget.currentItem()
@@ -220,11 +235,13 @@ class ObjetsPref:
             self.run()
 
     def on_dialog_closed(self):
+        self.sauve_to_json()
         self.sauve_position_dial()
         self.dlg = None
 
     def fermeture_qgis(self):
         self.sauve_position_dial()
+
 
     def run(self):
         """Run method that performs all the real work"""
@@ -235,18 +252,25 @@ class ObjetsPref:
         self.dlg.setWindowFlags(Dialog | WindowTitleHint | WindowCloseButtonHint)
         self.dlg.setWindowTitle(TITRE)
 
+        self.dlg.listWidget.setDragDropMode(QAbstractItemView.InternalMove)
+        self.dlg.listWidget.setDefaultDropAction(Qt.MoveAction)
+        self.dlg.listWidget.setDragEnabled(True)
+        self.dlg.listWidget.setAcceptDrops(True)
+        self.dlg.listWidget.setDropIndicatorShown(True)
+        self.dlg.listWidget.setSelectionMode(QAbstractItemView.SingleSelection)
 
         # connection de la fermeture du dialogue
         self.dlg.finished.connect(self.on_dialog_closed)
 
         self.restore_position_dial()
 
-
         # slot pour le bouton "Ajouter un objet préféré"
         self.dlg.pushButtonAdd.clicked.connect(self.on_ajouter_objet_prefere)
+        self.dlg.pushButtonAdd.setToolTip("Ajouter un objet préféré")
 
         # slot pour le bouton "Supprimer un objet préféré"
         self.dlg.pushButtonSuppr.clicked.connect(self.on_suppr_objet_prefere)
+        self.dlg.pushButtonSuppr.setToolTip("Supprimer un objet préféré")
 
         # slot pour le bouton "Activer la saisie"
         self.dlg.pushButton_activer_saisie.clicked.connect(self.on_activer_saisie)

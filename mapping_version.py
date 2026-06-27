@@ -24,7 +24,7 @@ try :
     # NoFocus = Qt.FocusPolicy.NoFocus
     # DisplayRole = Qt.ItemDataRole.DisplayRole
     # BackgroundRole = Qt.ItemDataRole.BackgroundRole
-    # RightButton = Qt.MouseButton.RightButton
+    RightButton = Qt.MouseButton.RightButton
     MiddleButton = Qt.MouseButton.MiddleButton
     LeftButton = Qt.MouseButton.LeftButton
     # NoContextMenu = Qt.ContextMenuPolicy.NoContextMenu
@@ -62,7 +62,7 @@ except :
     # NoFocus = Qt.NoFocus
     # DisplayRole = Qt.DisplayRole
     # BackgroundRole = Qt.BackgroundRole
-    # RightButton = Qt.RightButton
+    RightButton = Qt.RightButton
     MiddleButton = Qt.MiddleButton
     LeftButton = Qt.LeftButton
     # NoContextMenu = Qt.NoContextMenu
