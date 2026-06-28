@@ -30,12 +30,14 @@ from qgis.PyQt.uic import loadUi
 from qgis.PyQt.QtWidgets import QInputDialog, QMenu,QApplication, QAbstractItemView
 from qgis.core import QgsProject,QgsMapLayer,QgsApplication
 
+from pathlib import Path
+
 # Import the code for the dialog
 from .objet_prefere_dialog import ObjetsPrefDialog
 from .mapping_version import *
 
-REP_CONFIG = "CONFIG"
 FIC_OBJET_PREFERES = "objets_preferes.json"
+REP_OBJET_PREFERES = "OBJ_PREF"
 TITRE = "Objets préférés"
 
 class ObjetsPref():
@@ -69,7 +71,11 @@ class ObjetsPref():
             Retourne le chemin du dossier des objets préférés.
             :return: str
             """
-        return os.path.join(os.path.dirname(__file__),"OBJ_PREF")
+        # return os.path.join(os.path.dirname(__file__),"OBJ_PREF")
+        projet = QgsProject.instance()
+        chemin_projet = Path(projet.fileName())
+        path_obj_pref = Path(chemin_projet.parent, REP_OBJET_PREFERES)
+        return str(path_obj_pref)
 
     def set_fic_objetpreferes(self):
         self._fic_objets_pref = os.path.join(self.get_dossier_objets_pref(), FIC_OBJET_PREFERES)
