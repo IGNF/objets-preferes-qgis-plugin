@@ -25,9 +25,9 @@ import os
 import webbrowser
 import json
 
-from qgis.PyQt.QtCore import QSettings,QSize,QPoint,QObject
+from qgis.PyQt.QtCore import QSize,QPoint
 from qgis.PyQt.uic import loadUi
-from qgis.PyQt.QtWidgets import QInputDialog, QMenu,QApplication, QAbstractItemView
+from qgis.PyQt.QtWidgets import QInputDialog, QMenu,QApplication
 from qgis.core import QgsProject,QgsMapLayer,QgsApplication
 
 from pathlib import Path
@@ -214,7 +214,7 @@ class ObjetsPref():
         settings = QSettings(NativeFormat, UserScope, "IGN", TITRE)
         pos = settings.value("position", type=QPoint)
         size = settings.value("taille", type=QSize)
-        if pos is None:
+        if not pos:
             return
         screens = QApplication.screens()
         multi = len(screens) > 1
