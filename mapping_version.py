@@ -1,5 +1,5 @@
-from qgis.PyQt.QtWidgets import QMessageBox,QTextEdit,QSizePolicy,QDialog
-from qgis.PyQt.QtCore import Qt
+from qgis.PyQt.QtWidgets import QMessageBox,QTextEdit,QSizePolicy,QDialog,QAbstractItemView
+from qgis.PyQt.QtCore import Qt,QSettings
 
 # QT6
 try :
@@ -28,6 +28,12 @@ try :
     MiddleButton = Qt.MouseButton.MiddleButton
     LeftButton = Qt.MouseButton.LeftButton
     # NoContextMenu = Qt.ContextMenuPolicy.NoContextMenu
+    CustomContextMenu = Qt.ContextMenuPolicy.CustomContextMenu
+    InternalMove = QAbstractItemView.DragDropMode.InternalMove
+    SingleSelection = QAbstractItemView.SelectionMode.SingleSelection
+    NativeFormat = QSettings.Format.NativeFormat
+    MoveAction = Qt.DropAction.MoveAction
+    UserScope = QSettings.Scope.UserScope
     AlignCenter = Qt.AlignmentFlag.AlignCenter
     WaitCursor = Qt.CursorShape.WaitCursor
     # AscendingOrder = QtCore.Qt.SortOrder.AscendingOrder
@@ -66,6 +72,12 @@ except :
     MiddleButton = Qt.MiddleButton
     LeftButton = Qt.LeftButton
     # NoContextMenu = Qt.NoContextMenu
+    CustomContextMenu = Qt.CustomContextMenu
+    InternalMove = QAbstractItemView.InternalMove
+    SingleSelection = QAbstractItemView.SingleSelection
+    NativeFormat = QSettings.NativeFormat
+    MoveAction = Qt.MoveAction
+    UserScope = QSettings.UserScope
     AlignCenter = Qt.AlignCenter
     WaitCursor = Qt.WaitCursor
     # AscendingOrder = QtCore.Qt.AscendingOrder

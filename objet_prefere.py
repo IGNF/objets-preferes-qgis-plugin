@@ -204,14 +204,14 @@ class ObjetsPref():
         self.iface.actionSelect().trigger()
 
     def sauve_position_dial(self):
-        settings = QSettings(QSettings.NativeFormat, QSettings.UserScope,"IGN", TITRE)
+        settings = QSettings(NativeFormat, UserScope,"IGN", TITRE)
         settings.setValue("position", self.dlg.pos())
         settings.setValue("taille", self.dlg.size())
         settings.setValue("visible", self.dlg.isVisible())
 
 
     def restore_position_dial(self):
-        settings = QSettings(QSettings.NativeFormat, QSettings.UserScope, "IGN", TITRE)
+        settings = QSettings(NativeFormat, UserScope, "IGN", TITRE)
         pos = settings.value("position", type=QPoint)
         size = settings.value("taille", type=QSize)
         if pos is None:
@@ -235,7 +235,7 @@ class ObjetsPref():
                 self.dlg.move(center - self.dlg.rect().center())
 
     def on_project_opened(self):
-        settings = QSettings(QSettings.NativeFormat, QSettings.UserScope, "IGN", TITRE)
+        settings = QSettings(NativeFormat, UserScope, "IGN", TITRE)
         visible = settings.value("visible", False, type=bool)
         if visible:
             self.run()
@@ -258,12 +258,12 @@ class ObjetsPref():
         self.dlg.setWindowFlags(Dialog | WindowTitleHint | WindowCloseButtonHint)
         self.dlg.setWindowTitle(TITRE)
 
-        self.dlg.listWidget.setDragDropMode(QAbstractItemView.InternalMove)
-        self.dlg.listWidget.setDefaultDropAction(Qt.MoveAction)
+        self.dlg.listWidget.setDragDropMode(InternalMove)
+        self.dlg.listWidget.setDefaultDropAction(MoveAction)
         self.dlg.listWidget.setDragEnabled(True)
         self.dlg.listWidget.setAcceptDrops(True)
         self.dlg.listWidget.setDropIndicatorShown(True)
-        self.dlg.listWidget.setSelectionMode(QAbstractItemView.SingleSelection)
+        self.dlg.listWidget.setSelectionMode(SingleSelection)
 
         # connection de la fermeture du dialogue
         self.dlg.finished.connect(self.on_dialog_closed)
@@ -289,7 +289,7 @@ class ObjetsPref():
         # slot de listwidget
         self.dlg.listWidget.itemClicked.connect(self.on_clic_objet_prefere)
         # Connecter le menu contextuel
-        self.dlg.listWidget.setContextMenuPolicy(3)  # Qt.CustomContextMenu
+        self.dlg.listWidget.setContextMenuPolicy(CustomContextMenu)
         self.dlg.listWidget.customContextMenuRequested.connect(self.context_menu)
 
         self.set_fic_objetpreferes()
