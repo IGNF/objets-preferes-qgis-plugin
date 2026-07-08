@@ -23,19 +23,24 @@
 """
 import os
 import webbrowser
+import json
 
+from qgis.PyQt.QtCore import QSettings,QSize,QPoint,QObject
 from qgis.PyQt.uic import loadUi
-from qgis.PyQt.QtWidgets import QInputDialog, QMenu
-from qgis.core import QgsProject,QgsMapLayer
+from qgis.PyQt.QtWidgets import QInputDialog, QMenu,QApplication, QAbstractItemView
+from qgis.core import QgsProject,QgsMapLayer,QgsApplication
+
+from pathlib import Path
 
 # Import the code for the dialog
 from .objet_prefere_dialog import ObjetsPrefDialog
 from .mapping_version import *
 
-REP_CONFIG = "CONFIG"
 FIC_OBJET_PREFERES = "objets_preferes.json"
+REP_OBJET_PREFERES = "OBJ_PREF"
+TITRE = "Objets préférés"
 
-class ObjetsPref:
+class ObjetsPref():
     """QGIS Plugin Implementation."""
 
     def __init__(self, iface):
@@ -54,7 +59,9 @@ class ObjetsPref:
 
 
     def initGui(self):
-        pass
+        self.iface.projectRead.connect(self.on_project_opened)
+        # événement fermeture de qgis
+        QgsApplication.instance().aboutToQuit.connect(self.fermeture_qgis)
 
     def unload(self):
         pass
@@ -64,7 +71,11 @@ class ObjetsPref:
             Retourne le chemin du dossier des objets préférés.
             :return: str
             """
-        return os.path.join(os.path.dirname(__file__),"OBJ_PREF")
+        # return os.path.join(os.path.dirname(__file__),"OBJ_PREF")
+        projet = QgsProject.instance()
+        chemin_projet = Path(projet.fileName())
+        path_obj_pref = Path(chemin_projet.parent, REP_OBJET_PREFERES)
+        return str(path_obj_pref)
 
     def set_fic_objetpreferes(self):
         self._fic_objets_pref = os.path.join(self.get_dossier_objets_pref(), FIC_OBJET_PREFERES)
@@ -72,14 +83,6 @@ class ObjetsPref:
     def get_fic_objetpreferes(self):
         return self._fic_objets_pref
 
-    def get_objetspreferes(self):
-        if self.get_fic_objetpreferes() is None:
-            self.set_fic_objetpreferes()
-        if os.path.exists(self.get_fic_objetpreferes()):
-            with open(self.get_fic_objetpreferes(), "r") as f:
-                return [line.strip() for line in f.readlines()]
-        else:
-            return []
 
     def on_apropos(self):
         self.dlgAProposDe = QDialog()
@@ -107,18 +110,40 @@ class ObjetsPref:
         )
         if ok:
             self.dlg.listWidget.addItem(valeur)
-            self.add_obj_pef_to_fic(valeur)
+            self.add_obj_pref_to_fic(valeur)
 
 
-    def add_obj_pef_to_fic(self, objet_prefere):
+    def sauve_to_json(self):
+        objets_pref = []
+        for i in range(self.dlg.listWidget.count()):
+            objets_pref.append(self.dlg.listWidget.item(i).text())
+        with open(self.get_fic_objetpreferes(), "w",encoding="utf-8") as f:
+            json.dump(objets_pref, f, indent=2)
+
+
+    def add_obj_pref_to_fic(self, objet_prefere):
         os.makedirs(self.get_dossier_objets_pref(), exist_ok=True)
-        with open(self.get_fic_objetpreferes(), "a") as f:
-            f.write(objet_prefere + "\n")
+        # 1. charger existant
+        try:
+            with open(self.get_fic_objetpreferes(), "r", encoding="utf-8") as f:
+                objets = json.load(f)
+        except Exception:
+            objets = []
+        # ajouter si pas déjà présent
+        if objet_prefere not in objets:
+            objets.append(objet_prefere)
+        # réécrire fichier complet
+        with open(self.get_fic_objetpreferes(), "w", encoding="utf-8") as f:
+            json.dump(objets, f, indent=2, ensure_ascii=False)
 
+    # retourne une liste de tous les objets préférés
     def get_obj_pref_from_fic(self):
         if os.path.exists(self.get_fic_objetpreferes()):
-            with open(self.get_fic_objetpreferes(), "r") as f:
-                return [line.strip() for line in f.readlines()]
+            try:
+                with open(self.get_fic_objetpreferes(), "r", encoding="utf-8") as f:
+                    return json.load(f)
+            except json.JSONDecodeError:
+                return []
         else:
             return []
 
@@ -140,12 +165,25 @@ class ObjetsPref:
         if item:
             if action == action_supprimer:
                 self.dlg.listWidget.takeItem(self.dlg.listWidget.row(item))
-                # et on réécrit le fichier sans l'item supprimé
                 objets_pref = self.get_obj_pref_from_fic()
+                #  on redefini objets_pref sans l'item supprimé
                 objets_pref = [obj for obj in objets_pref if obj != item.text()]
-                with open(self.get_fic_objetpreferes(), "w") as f:
-                    for obj in objets_pref:
-                        f.write(obj + "\n")
+                with open(self.get_fic_objetpreferes(), "w",encoding="utf-8") as f:
+                        # f.write(obj + "\n")
+                        json.dump(objets_pref, f, indent=2)
+
+    def on_suppr_objet_prefere(self):
+        item = self.dlg.listWidget.currentItem()
+        if item is None:
+            return
+        # suppression de l'item dans la listwidget
+        self.dlg.listWidget.takeItem(self.dlg.listWidget.row(item))
+        # et on réécrit le fichier sans l'item supprimé
+        objets_pref = self.get_obj_pref_from_fic()
+        objets_pref = [obj for obj in objets_pref if obj != item.text()]
+        with open(self.get_fic_objetpreferes(), "w",encoding="utf-8") as f:
+                # f.write(obj + "\n")
+                json.dump(objets_pref, f, indent=2)
 
     def on_clic_objet_prefere(self):
         item = self.dlg.listWidget.currentItem()
@@ -165,6 +203,52 @@ class ObjetsPref:
         # apres une creation, on repasse en mode selection
         self.iface.actionSelect().trigger()
 
+    def sauve_position_dial(self):
+        settings = QSettings(NativeFormat, UserScope,"IGN", TITRE)
+        settings.setValue("position", self.dlg.pos())
+        settings.setValue("taille", self.dlg.size())
+        settings.setValue("visible", self.dlg.isVisible())
+
+
+    def restore_position_dial(self):
+        settings = QSettings(NativeFormat, UserScope, "IGN", TITRE)
+        pos = settings.value("position", type=QPoint)
+        size = settings.value("taille", type=QSize)
+        if pos is None:
+            return
+        screens = QApplication.screens()
+        multi = len(screens) > 1
+        # Vérifie si la position est sur un des écrans
+        on_screen = any(screen.geometry().contains(pos) for screen in screens)
+        if on_screen:
+            self.dlg.move(pos)
+            if size:
+                self.dlg.resize(size)
+        else:
+            # Si un seul écran → replacer en haut-gauche
+            if not multi:
+                self.dlg.move(QPoint(0, 0))
+            else:
+                # Multi-écran mais position invalide → centrer sur écran principal
+                primary = QApplication.primaryScreen().geometry()
+                center = primary.center()
+                self.dlg.move(center - self.dlg.rect().center())
+
+    def on_project_opened(self):
+        settings = QSettings(NativeFormat, UserScope, "IGN", TITRE)
+        visible = settings.value("visible", False, type=bool)
+        if visible:
+            self.run()
+
+    def on_dialog_closed(self):
+        self.sauve_to_json()
+        self.sauve_position_dial()
+        self.dlg = None
+
+    def fermeture_qgis(self):
+        self.sauve_position_dial()
+
+
     def run(self):
         """Run method that performs all the real work"""
         if self.dlg is not None and self.dlg.isVisible():
@@ -172,9 +256,27 @@ class ObjetsPref:
         self.dlg = ObjetsPrefDialog()
         self.dlg.setParent(self.iface.mainWindow())
         self.dlg.setWindowFlags(Dialog | WindowTitleHint | WindowCloseButtonHint)
+        self.dlg.setWindowTitle(TITRE)
+
+        self.dlg.listWidget.setDragDropMode(InternalMove)
+        self.dlg.listWidget.setDefaultDropAction(MoveAction)
+        self.dlg.listWidget.setDragEnabled(True)
+        self.dlg.listWidget.setAcceptDrops(True)
+        self.dlg.listWidget.setDropIndicatorShown(True)
+        self.dlg.listWidget.setSelectionMode(SingleSelection)
+
+        # connection de la fermeture du dialogue
+        self.dlg.finished.connect(self.on_dialog_closed)
+
+        self.restore_position_dial()
 
         # slot pour le bouton "Ajouter un objet préféré"
         self.dlg.pushButtonAdd.clicked.connect(self.on_ajouter_objet_prefere)
+        self.dlg.pushButtonAdd.setToolTip("Ajouter un objet préféré")
+
+        # slot pour le bouton "Supprimer un objet préféré"
+        self.dlg.pushButtonSuppr.clicked.connect(self.on_suppr_objet_prefere)
+        self.dlg.pushButtonSuppr.setToolTip("Supprimer un objet préféré")
 
         # slot pour le bouton "Activer la saisie"
         self.dlg.pushButton_activer_saisie.clicked.connect(self.on_activer_saisie)
@@ -187,16 +289,12 @@ class ObjetsPref:
         # slot de listwidget
         self.dlg.listWidget.itemClicked.connect(self.on_clic_objet_prefere)
         # Connecter le menu contextuel
-        self.dlg.listWidget.setContextMenuPolicy(3)  # Qt.CustomContextMenu
+        self.dlg.listWidget.setContextMenuPolicy(CustomContextMenu)
         self.dlg.listWidget.customContextMenuRequested.connect(self.context_menu)
 
         self.set_fic_objetpreferes()
         self.init_list_widget()
 
         self.dlg.show()
-        # Run the dialog event loop
-        result = self.dlg.exec_()
-        # # See if OK was pressed
-        if result == QDialog.Rejected:
-            pass
+
 
