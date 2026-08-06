@@ -7,7 +7,7 @@ name=IGN Objets préférés
 qgisMinimumVersion=3.34
 qgisMaximumVersion=4.99
 
-description=Ce plugin permet de gérer des layers "favoris". Il Permet d'activer une couche et d'activer la saisie d'une entité sur cette couche active.
+description=This plugin allows you to manage favorite layers. It lets you activate a layer and immediately start capturing a new feature on the active layer.
 version=0.4.0
 author=Gérôme PECHEUR (IGN)
 email=gerome.pecheur@ign.fr
