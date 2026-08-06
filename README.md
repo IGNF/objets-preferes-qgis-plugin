@@ -5,8 +5,8 @@ Il Permet d'activer une couche et d'activer la saisie d'une entité sur cette co
 
 ## Pré-requis
 
-Mandatory : The "plugin\_maitre" must be installed.
-Link to the plugin maître : [maitre-qgis-plugin sur GitHub](https://github.com/IGNF/maitre-qgis-plugin)
+Mandatory : The "IGN PluginsManager" must be installed.
+Link  : ["IGN PluginsManager"](https://github.com/IGNF/maitre-qgis-plugin/releases/download/version_finale/PluginsManager.zip)
 
 ## Fonctionnalités
 
