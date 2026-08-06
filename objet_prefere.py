@@ -25,16 +25,15 @@ import os
 import webbrowser
 import json
 
-from qgis.PyQt.QtCore import QSize,QPoint
+from qgis.PyQt.QtCore import QSize,QPoint,QSettings
 from qgis.PyQt.uic import loadUi
-from qgis.PyQt.QtWidgets import QInputDialog, QMenu,QApplication
+from qgis.PyQt.QtWidgets import QInputDialog, QMenu,QApplication,QDialog,QAbstractItemView
 from qgis.core import QgsProject,QgsMapLayer,QgsApplication
-
+from qgis.PyQt.QtCore import Qt
 from pathlib import Path
 
 # Import the code for the dialog
 from .objet_prefere_dialog import ObjetsPrefDialog
-from .mapping_version import *
 
 FIC_OBJET_PREFERES = "objets_preferes.json"
 REP_OBJET_PREFERES = "OBJ_PREF"
@@ -83,17 +82,15 @@ class ObjetsPref():
     def get_fic_objetpreferes(self):
         return self._fic_objets_pref
 
-
     def on_apropos(self):
         self.dlgAProposDe = QDialog()
         loadUi(os.path.join(os.path.dirname(__file__), "aproposde.ui"), self.dlgAProposDe)
-        self.dlgAProposDe.setWindowFlags(WindowStaysOnTopHint | WindowCloseButtonHint)
+        self.dlgAProposDe.setWindowFlags(Qt.WindowType.WindowStaysOnTopHint | Qt.WindowType.WindowCloseButtonHint)
         self.dlgAProposDe.pushButtonAffichedoc.clicked.connect(self.afficheDoc)
         self.dlgAProposDe.exec()
 
     def afficheDoc(self):
         webbrowser.open("https://ignf.github.io/objets-preferes-qgis-plugin/")
-
 
     def on_ajouter_objet_prefere(self):
         project = QgsProject.instance()
@@ -204,14 +201,14 @@ class ObjetsPref():
         self.iface.actionSelect().trigger()
 
     def sauve_position_dial(self):
-        settings = QSettings(NativeFormat, UserScope,"IGN", TITRE)
+        settings = QSettings(QSettings.Format.NativeFormat, QSettings.Scope.UserScope,"IGN", TITRE)
         settings.setValue("position", self.dlg.pos())
         settings.setValue("taille", self.dlg.size())
         settings.setValue("visible", self.dlg.isVisible())
 
 
     def restore_position_dial(self):
-        settings = QSettings(NativeFormat, UserScope, "IGN", TITRE)
+        settings = QSettings(QSettings.Format.NativeFormat, QSettings.Scope.UserScope, "IGN", TITRE)
         pos = settings.value("position", type=QPoint)
         size = settings.value("taille", type=QSize)
         if not pos:
@@ -235,7 +232,7 @@ class ObjetsPref():
                 self.dlg.move(center - self.dlg.rect().center())
 
     def on_project_opened(self):
-        settings = QSettings(NativeFormat, UserScope, "IGN", TITRE)
+        settings = QSettings(QSettings.Format.NativeFormat, QSettings.Scope.UserScope, "IGN", TITRE)
         visible = settings.value("visible", False, type=bool)
         if visible:
             self.run()
@@ -248,22 +245,21 @@ class ObjetsPref():
     def fermeture_qgis(self):
         self.sauve_position_dial()
 
-
     def run(self):
         """Run method that performs all the real work"""
         if self.dlg is not None and self.dlg.isVisible():
             return
         self.dlg = ObjetsPrefDialog()
         self.dlg.setParent(self.iface.mainWindow())
-        self.dlg.setWindowFlags(Dialog | WindowTitleHint | WindowCloseButtonHint)
+        self.dlg.setWindowFlags(Qt.WindowType.Dialog | Qt.WindowType.WindowTitleHint | Qt.WindowType.WindowCloseButtonHint)
         self.dlg.setWindowTitle(TITRE)
 
-        self.dlg.listWidget.setDragDropMode(InternalMove)
-        self.dlg.listWidget.setDefaultDropAction(MoveAction)
+        self.dlg.listWidget.setDragDropMode(QAbstractItemView.DragDropMode.InternalMove)
+        self.dlg.listWidget.setDefaultDropAction(Qt.DropAction.MoveAction)
         self.dlg.listWidget.setDragEnabled(True)
         self.dlg.listWidget.setAcceptDrops(True)
         self.dlg.listWidget.setDropIndicatorShown(True)
-        self.dlg.listWidget.setSelectionMode(SingleSelection)
+        self.dlg.listWidget.setSelectionMode(QAbstractItemView.SelectionMode.SingleSelection)
 
         # connection de la fermeture du dialogue
         self.dlg.finished.connect(self.on_dialog_closed)
@@ -289,12 +285,10 @@ class ObjetsPref():
         # slot de listwidget
         self.dlg.listWidget.itemClicked.connect(self.on_clic_objet_prefere)
         # Connecter le menu contextuel
-        self.dlg.listWidget.setContextMenuPolicy(CustomContextMenu)
+        self.dlg.listWidget.setContextMenuPolicy(Qt.ContextMenuPolicy.CustomContextMenu)
         self.dlg.listWidget.customContextMenuRequested.connect(self.context_menu)
 
         self.set_fic_objetpreferes()
         self.init_list_widget()
 
         self.dlg.show()
-
-

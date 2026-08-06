@@ -31,10 +31,10 @@ alt="logo_IGN_pour_lettre" /></td>
   <h2 id="1-prerequis" style="color: white;margin:0;" >1. Prérequis</h2>
 </div>
 
-- Version de QGIS : 3.28 ou supérieur
+- Version de QGIS : 3.34 ou supérieur
 
-- Le plugin « maitre » doit préalablement être installé : 
-[maitre-qgis-plugin sur GitHub](https://github.com/IGNF/maitre-qgis-plugin)
+- Le plugin «IGN PluginsManager» doit préalablement être installé : 
+[Télecharger le plugin](https://github.com/IGNF/maitre-qgis-plugin/releases/download/version_finale/PluginsManager.zip)
 
 
 <div  style="background-color: #00ADC5; border: 1px solid black; padding: 5px; text-align: justify;margin-bottom:10px;">
