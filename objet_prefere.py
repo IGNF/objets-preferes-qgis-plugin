@@ -96,7 +96,7 @@ class ObjetsPref():
         project = QgsProject.instance()
         layers = project.mapLayers().values()
         # uniquement des layers vectorielles
-        list_layer = [layer.name() for layer in layers if layer.type() == QgsMapLayer.VectorLayer]
+        list_layer = [layer.name() for layer in layers if layer.type() == QgsMapLayer.LayerType.VectorLayer]
         valeur, ok = QInputDialog.getItem(
             None,
             "Sélection",
