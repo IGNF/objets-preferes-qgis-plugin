@@ -118,7 +118,7 @@ class ObjetsPref():
         fichier = Path(self.get_fic_objetpreferes())
         # Crée le dossier s'il n'existe pas
         fichier.parent.mkdir(parents=True, exist_ok=True)
-        
+
         with open(self.get_fic_objetpreferes(), "w",encoding="utf-8") as f:
             json.dump(objets_pref, f, indent=2)
 

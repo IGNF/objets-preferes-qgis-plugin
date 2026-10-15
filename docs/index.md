@@ -31,7 +31,7 @@ alt="logo_IGN_pour_lettre" /></td>
   <h2 id="1-prerequis" style="color: white;margin:0;" >1. Prérequis</h2>
 </div>
 
-- Version de QGIS : 3.34 ou supérieur
+- Version de QGIS : 3.44 ou supérieur
 
 - Le plugin «IGN PluginsManager» doit préalablement être installé : 
 [Télecharger le plugin](https://github.com/IGNF/maitre-qgis-plugin/releases/download/version_finale/PluginsManager.zip)
@@ -48,19 +48,15 @@ entité sur cette couche active
   <h2 id="3-presentation" style="color: white;margin:0;" >3. Présentation</h2>
 </div>
 
-<img src="images/image2.png"
-style="width:2.06279in;height:3.28171in" />
+<img src="images/image2.png" style="width:2.06279in;height:3.28171in" />
 
-<img src="images/image3.png"
-style="width:0.32296in;height:0.30213in" /> : Affiche l’historique des
+<img src="images/image3.png" style="width:0.32296in;height:0.30213in" /> : Affiche l’historique des
 versions et l’aide en ligne.
 
-<img src="images/image4.png"
-style="width:0.3438in;height:0.31254in" /> : Permet d’activer la saisie
+<img src="images/image4.png" style="width:0.3438in;height:0.31254in" /> : Permet d’activer la saisie
 d’une entité sur la couche active
 
-<img src="images/image5.png"
-style="width:1.0939in;height:0.28129in" /> : permet d’ajouter un layer.
+<img src="images/image5.png" style="width:1.0939in;height:0.28129in" /> : permet d’ajouter un layer.
 
 <div  style="background-color: #00ADC5; border: 1px solid black; padding: 5px; text-align: justify;margin-bottom:10px;">
   <h2 id="4-utilisation" style="color: white;margin:0;" >4. Utilisation</h2>
@@ -73,6 +69,5 @@ Un clic droit sur une ligne permet de supprimer cette ligne.
 On peut réorganiser les couches par un glissé-déposé
 
 Une fois qu’un layer est actif, un clic sur
-<img src="images/image4.png"
-style="width:0.3438in;height:0.31254in" /> active la saisie d’une
+<img src="images/image4.png" style="width:0.3438in;height:0.31254in" /> active la saisie d’une
 nouvelle entité.

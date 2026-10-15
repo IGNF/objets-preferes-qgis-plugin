@@ -8,7 +8,7 @@ qgisMinimumVersion=3.34
 qgisMaximumVersion=4.99
 
 description=This plugin allows you to manage favorite layers. It lets you activate a layer and immediately start capturing a new feature on the active layer.
-version=0.4.0
+version=0.4.1
 author=Gérôme PECHEUR (IGN)
 email=gerome.pecheur@ign.fr
 license=GNU AGPL v3
