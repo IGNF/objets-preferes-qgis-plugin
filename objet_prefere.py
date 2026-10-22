@@ -114,6 +114,11 @@ class ObjetsPref():
         objets_pref = []
         for i in range(self.dlg.listWidget.count()):
             objets_pref.append(self.dlg.listWidget.item(i).text())
+
+        fichier = Path(self.get_fic_objetpreferes())
+        # Crée le dossier s'il n'existe pas
+        fichier.parent.mkdir(parents=True, exist_ok=True)
+
         with open(self.get_fic_objetpreferes(), "w",encoding="utf-8") as f:
             json.dump(objets_pref, f, indent=2)
 
