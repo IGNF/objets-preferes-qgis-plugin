@@ -25,7 +25,7 @@ repository=https://github.com/IGNF/objets-preferes-qgis-plugin
 
 hasProcessingProvider=no
 # Uncomment the following line and add your changelog:
-# changelog=
+changelog=Correction bug #9
 
 # Tags are comma separated with spaces allowed
 tags=python
